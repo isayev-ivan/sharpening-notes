@@ -2,21 +2,18 @@
   "name": "sharpening-notes",
   "version": "1.0.0",
   "description": "My evergreen notes about sharpening",
-  "main": "index.js",
-  "scripts": {
-    "dev": "vuepress dev docs",
-    "build": "vuepress build docs"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/isayev-ivan/sharpening-notes.git"
   },
   "author": "Isayev Ivan",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/isayev-ivan/sharpening-notes/issues"
-  },
   "homepage": "https://github.com/isayev-ivan/sharpening-notes#readme",
+
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  },
+
   "devDependencies": {
     "@vuepress/bundler-vite": "^2.0.0-rc.24",
     "@vuepress/theme-default": "^2.0.0-rc.112",
