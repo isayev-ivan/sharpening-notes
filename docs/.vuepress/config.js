@@ -5,4 +5,8 @@ import { defineUserConfig } from 'vuepress'
 export default defineUserConfig({
     bundler: viteBundler(),
     theme: defaultTheme(),
+
+    lang: 'ru',
+    title: 'Привет, вью-пресс',
+    description: 'Моё супер описание...',
 })
