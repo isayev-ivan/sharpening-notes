@@ -1,2 +1,2 @@
-# VuePress default cache directory
-docs/.vitepress/cache/
+.vitepress/dist
+.vitepress/cache
