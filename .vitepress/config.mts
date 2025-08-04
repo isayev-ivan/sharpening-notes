@@ -27,7 +27,7 @@ export default defineConfig({
               strict: true,
               locale: 'ru'
             })
-            return `<router-link to="/${slug}" class="internal-link">${rawName}</router-link>`;
+            return `<a href="/${slug}" class="internal-link">${rawName}</a>`
           })
         }
       })
