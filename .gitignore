@@ -1,8 +1,2 @@
 # VuePress default cache directory
-docs/.vuepress/.cache/
-
-# VuePress default temp directory
-docs/.vuepress/.temp/
-
-# VuePress default build output directory
-.vuepress/dist
+docs/.vitepress/cache/
