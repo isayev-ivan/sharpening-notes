@@ -1,7 +1,7 @@
 {
   "name": "sharpening-notes",
-  "version": "1.0.0",
   "description": "My evergreen notes about sharpening",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/isayev-ivan/sharpening-notes.git"
@@ -16,5 +16,8 @@
   "devDependencies": {
     "vitepress": "^1.6.3",
     "vue": "^3.5.18"
+  },
+  "dependencies": {
+    "slugify": "^1.6.6"
   }
 }
