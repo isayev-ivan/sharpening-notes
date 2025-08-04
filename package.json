@@ -8,15 +8,15 @@
   },
   "author": "Isayev Ivan",
   "homepage": "https://github.com/isayev-ivan/sharpening-notes#readme",
-
   "scripts": {
     "dev": "vuepress dev docs",
     "build": "vuepress build docs"
   },
-
   "devDependencies": {
     "@vuepress/bundler-vite": "^2.0.0-rc.24",
+    "@vuepress/client": "^2.0.0-rc.24",
     "@vuepress/theme-default": "^2.0.0-rc.112",
+    "@vuepress/utils": "^2.0.0-rc.24",
     "vuepress": "^2.0.0-rc.24"
   }
 }
