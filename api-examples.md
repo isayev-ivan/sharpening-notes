@@ -2,6 +2,8 @@
 outline: deep
 ---
 
+This is my wiki link [[my_note]]
+
 # Runtime API Examples
 
 This page demonstrates usage of some of the runtime APIs provided by VitePress.
