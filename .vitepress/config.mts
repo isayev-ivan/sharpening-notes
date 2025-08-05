@@ -1,36 +1,55 @@
 import { defineConfig } from 'vitepress'
+import fg from 'fast-glob'
+import path from 'path'
 import slugify from 'slugify'
+
+const srcDir = 'notes'
+const NOTES_DIR = path.resolve(__dirname, '..', srcDir)
+
+function generateWikiMap(): Record<string, string> {
+  const entries = fg.sync(['*.md'], { cwd: NOTES_DIR })
+  const map: Record<string, string> = {}
+
+  for (const filename of entries) {
+    const rawName = path.parse(filename).name
+    const slug = slugify(rawName, {
+      lower: true,
+      strict: true,
+      locale: 'ru'
+    })
+    map[rawName] = slug
+  }
+
+  return map
+}
+
+const wikiMap = generateWikiMap()
 
 export default defineConfig({
   title: 'Sharpening notes',
   description: 'My evergreen notes about sharpening',
-  srcDir: 'notes',
-
+  srcDir,
   markdown: {
     config(md) {
-      console.log('config loaded')
+      const pattern = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
 
-      md.use(() => {
-        const pattern = /\[\[([\p{L}\p{N}\p{Zs}\-_.]+)\]\]/gu
+      const renderText = md.renderer.rules.text || function (tokens, idx) {
+        return tokens[idx].content
+      }
 
+      md.renderer.rules.text = function (tokens, idx, options, env, self) {
+        const raw = renderText(tokens, idx, options, env, self)
 
-        const renderText = md.renderer.rules.text || function (tokens, idx) {
-          return tokens[idx].content;
-        }
+        return raw.replace(pattern, (_, rawName, displayText) => {
+          const trimmedName = rawName.trim()
+          const target = wikiMap[trimmedName]
+          const text = (displayText || trimmedName).trim()
 
-        md.renderer.rules.text = function (tokens, idx, options, env, self) {
-          const raw = renderText(tokens, idx, options, env, self);
+          if (!target) return `[[${trimmedName}${displayText ? ` | ${text}` : ''}]]`
 
-          return raw.replace(pattern, (_, rawName) => {
-            const slug = slugify(rawName.trim(), {
-              lower: true,
-              strict: true,
-              locale: 'ru'
-            })
-            return `<a href="/${slug}" class="internal-link">${rawName}</a>`
-          })
-        }
-      })
+          return `<a href="/${target}" class="internal-link">${text}</a>`
+        })
+      }
     }
   }
 })

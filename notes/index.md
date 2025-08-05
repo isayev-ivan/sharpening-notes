@@ -2,4 +2,7 @@
 home: true
 ---
 
-Welcome to my knowledge base! [[How to Sharpen]] [[Простые техники]]
+# Welcome 
+...to my knowledge base! [[How to Sharpen]] 
+
+Заточить любой нож можно используя довольно простые [[Техники заточки ножа | техники]]
