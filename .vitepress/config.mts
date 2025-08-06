@@ -1,17 +1,21 @@
 import { defineConfig } from 'vitepress'
-import fs from 'fs'
 import path from 'path'
-import fg from 'fast-glob'
-import slugify from 'slugify'
+import fg from 'fast-glob'      // позволяет искать файлы по маске, например, *.md
+import slugify from 'slugify'   // превращает имя файла в «красивый URL»
 
 const srcDir = 'notes'
-const notesDir = path.resolve(__dirname, '..', srcDir)
+const notesDir = path.resolve(__dirname, '..', srcDir) //абсолютный путь к папке, нужен для корректного доступа к файлам.
 
-const slugMap: Record<string, string> = {}
-const reverseSlugMap: Record<string, string> = {}
+const slugMap: Record<string, string> = {}         // карта ИмяФайла → slug  'Техники заточки ножа' → 'tehniki-zatochki-nozha'
+const reverseSlugMap: Record<string, string> = {}  // карта slug → ИмяФайла
 
-// Собираем все md-файлы
+// Собираем все md-файлы (ищет все .md файлы в папке notes)
 const files = fg.sync(['*.md'], { cwd: notesDir })
+
+
+console.log(`fg.sync ${files.length} files`);
+
+
 
 for (const file of files) {
   const name = path.parse(file).name
@@ -26,6 +30,9 @@ function WikiSlugPlugin(notesDir: string) {
   return {
     name: 'vitepress-wiki-slug-resolver',
     resolveId(id: string) {
+
+      console.log(`WikiSlugPlugin`);
+
       if (id.startsWith('/')) id = id.slice(1)
       if (id.endsWith('.md')) {
         const slug = id.slice(0, -3)
@@ -43,13 +50,17 @@ export default defineConfig({
   title: 'Sharpening notes',
   description: 'My evergreen notes about sharpening',
   srcDir,
+  cleanUrls: true,
   vite: {
     plugins: [WikiSlugPlugin(notesDir)]
   },
   markdown: {
     config(md) {
-      const pattern = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
 
+      console.log(`md config`);
+
+
+      const pattern = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
       const defaultText = md.renderer.rules.text ?? ((tokens, idx) => tokens[idx].content)
 
       md.renderer.rules.text = function (tokens, idx, options, env, self) {
