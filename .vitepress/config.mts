@@ -1,26 +1,37 @@
-import { defineConfig } from 'vitepress'
+import {defineConfig} from 'vitepress'
 import path from 'path'
-import fg from 'fast-glob'      // позволяет искать файлы по маске, например, *.md
-import slugify from 'slugify'   // превращает имя файла в «красивый URL»
+import fg from 'fast-glob' // позволяет искать файлы по маске, например, *.md
+import slugify from 'slugify' // превращает имя файла в «красивый URL»
 
 const srcDir = 'notes'
 const notesDir = path.resolve(__dirname, '..', srcDir) //абсолютный путь к папке, нужен для корректного доступа к файлам.
 
-const slugMap: Record<string, string> = {}         // карта ИмяФайла → slug  'Техники заточки ножа' → 'tehniki-zatochki-nozha'
-const reverseSlugMap: Record<string, string> = {}  // карта slug → ИмяФайла
+let slugMap: Record<string, string> = {}         // карта ИмяФайла → slug  'Техники заточки ножа' → 'tehniki-zatochki-nozha'
+
+function getSlugMagFromFiles(files: string[]) {
+  let slugMap: Record<string, string> = {}
+  for (const file of files) {
+    const name = path.parse(file).name
+    slugMap[name] = slugify(name, {lower: true, strict: true, locale: 'ru'})
+  }
+  return slugMap
+}
+function getSlutFromName(fileName: string, slugMap: Record<string, string>) {
+  let name = fileName;
+
+  if (name.startsWith('/')) name = name.slice(1)
+  if (name.endsWith('.md')) {
+    name = name.slice(0, -3)
+  }
+
+  let slug = slugMap[name]
+
+  return slug ? slug + ".md" : fileName
+}
 
 // Собираем все md-файлы (ищет все .md файлы в папке notes)
 const files = fg.sync(['*.md'], { cwd: notesDir })
-console.log(`fg.sync ${files.length} files`);
-
-// Собираем из них имя <--> slug
-for (const file of files) {
-  const name = path.parse(file).name
-  const slug = slugify(name, { lower: true, strict: true, locale: 'ru' })
-
-  slugMap[name] = slug
-  reverseSlugMap[slug] = file // file = "Простые техники.md"
-}
+slugMap = getSlugMagFromFiles(files)
 
 export default defineConfig({
   title: 'Sharpening notes',
@@ -33,16 +44,7 @@ export default defineConfig({
 
   // переопределение урлов
   rewrites(id) {
-    let name = id;
-
-    if (name.startsWith('/')) name = name.slice(1)
-    if (name.endsWith('.md')) {
-      name = id.slice(0, -3)
-    }
-
-    let slug = slugMap[name]
-
-    return slug ? slug + ".md" : id
+    return getSlutFromName(id, slugMap)
   },
 
   // Парсинг [[Заметка]] и [[Заметка | в этоих заметках]]
