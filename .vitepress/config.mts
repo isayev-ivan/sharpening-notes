@@ -8,6 +8,7 @@ const notesDir = path.resolve(__dirname, '..', srcDir) //абсолютный п
 
 const slugMap: Record<string, string> = {}         // карта ИмяФайла → slug  'Техники заточки ножа' → 'tehniki-zatochki-nozha'
 const reverseSlugMap: Record<string, string> = {}  // карта slug → ИмяФайла
+const slugToFilePathMap: Record<string, string> = {}  // карта slug → ИмяФайла
 
 // Собираем все md-файлы (ищет все .md файлы в папке notes)
 const files = fg.sync(['*.md'], { cwd: notesDir })
@@ -23,26 +24,27 @@ for (const file of files) {
 
   slugMap[name] = slug
   reverseSlugMap[slug] = file // file = "Простые техники.md"
+  slugToFilePathMap[slug] = `../../${srcDir}/${file}`
 }
 
 // Плагин для переадресации slug → русский .md
 function WikiSlugPlugin(notesDir: string) {
   return {
     name: 'vitepress-wiki-slug-resolver',
-    resolveId(id: string) {
-
-      console.log(`WikiSlugPlugin`);
-
-      if (id.startsWith('/')) id = id.slice(1)
-      if (id.endsWith('.md')) {
-        const slug = id.slice(0, -3)
-        const file = reverseSlugMap[slug]
-        if (file) {
-          return path.join(notesDir, file)
-        }
-      }
-      return null
-    }
+    // resolveId(id: string) {
+    //
+    //   console.log(`WikiSlugPlugin`);
+    //
+    //   if (id.startsWith('/')) id = id.slice(1)
+    //   if (id.endsWith('.md')) {
+    //     const slug = id.slice(0, -3)
+    //     const file = reverseSlugMap[slug]
+    //     if (file) {
+    //       return path.join(notesDir, file)
+    //     }
+    //   }
+    //   return null
+    // }
   }
 }
 
@@ -51,6 +53,21 @@ export default defineConfig({
   description: 'My evergreen notes about sharpening',
   srcDir,
   cleanUrls: true,
+
+  themeConfig: {
+    slugMap,
+    slugToFilePathMap,
+  },
+
+  // rewrites: {
+  //   'Простые техники.md': 'tehniki-zatochki-nozha.md',
+  // },
+  rewrites(id) {
+    console.log(`rewrites ${id}`);
+    return id
+    // return id.replace(/^packages\/([^/]+)\/src\//, '$1/')
+  },
+
   vite: {
     plugins: [WikiSlugPlugin(notesDir)]
   },
