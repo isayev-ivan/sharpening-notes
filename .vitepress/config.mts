@@ -8,44 +8,18 @@ const notesDir = path.resolve(__dirname, '..', srcDir) //абсолютный п
 
 const slugMap: Record<string, string> = {}         // карта ИмяФайла → slug  'Техники заточки ножа' → 'tehniki-zatochki-nozha'
 const reverseSlugMap: Record<string, string> = {}  // карта slug → ИмяФайла
-const slugToFilePathMap: Record<string, string> = {}  // карта slug → ИмяФайла
 
 // Собираем все md-файлы (ищет все .md файлы в папке notes)
 const files = fg.sync(['*.md'], { cwd: notesDir })
-
-
 console.log(`fg.sync ${files.length} files`);
 
-
-
+// Собираем из них имя <--> slug
 for (const file of files) {
   const name = path.parse(file).name
   const slug = slugify(name, { lower: true, strict: true, locale: 'ru' })
 
   slugMap[name] = slug
   reverseSlugMap[slug] = file // file = "Простые техники.md"
-  slugToFilePathMap[slug] = `../../${srcDir}/${file}`
-}
-
-// Плагин для переадресации slug → русский .md
-function WikiSlugPlugin(notesDir: string) {
-  return {
-    name: 'vitepress-wiki-slug-resolver',
-    // resolveId(id: string) {
-    //
-    //   console.log(`WikiSlugPlugin`);
-    //
-    //   if (id.startsWith('/')) id = id.slice(1)
-    //   if (id.endsWith('.md')) {
-    //     const slug = id.slice(0, -3)
-    //     const file = reverseSlugMap[slug]
-    //     if (file) {
-    //       return path.join(notesDir, file)
-    //     }
-    //   }
-    //   return null
-    // }
-  }
 }
 
 export default defineConfig({
@@ -53,30 +27,27 @@ export default defineConfig({
   description: 'My evergreen notes about sharpening',
   srcDir,
   cleanUrls: true,
-
   themeConfig: {
-    slugMap,
-    slugToFilePathMap,
+    slugMap // Эту переменную можно достать в шаблоне через site...
   },
 
-  // rewrites: {
-  //   'Простые техники.md': 'tehniki-zatochki-nozha.md',
-  // },
+  // переопределение урлов
   rewrites(id) {
-    console.log(`rewrites ${id}`);
-    return id
-    // return id.replace(/^packages\/([^/]+)\/src\//, '$1/')
+    let name = id;
+
+    if (name.startsWith('/')) name = name.slice(1)
+    if (name.endsWith('.md')) {
+      name = id.slice(0, -3)
+    }
+
+    let slug = slugMap[name]
+
+    return slug ? slug + ".md" : id
   },
 
-  vite: {
-    plugins: [WikiSlugPlugin(notesDir)]
-  },
+  // Парсинг [[Заметка]] и [[Заметка | в этоих заметках]]
   markdown: {
     config(md) {
-
-      console.log(`md config`);
-
-
       const pattern = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
       const defaultText = md.renderer.rules.text ?? ((tokens, idx) => tokens[idx].content)
 
