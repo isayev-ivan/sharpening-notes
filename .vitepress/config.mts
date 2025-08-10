@@ -3,6 +3,8 @@ import path from 'path'
 import fg from 'fast-glob' // позволяет искать файлы по маске, например, *.md
 import slugify from 'slugify' // превращает имя файла в «красивый URL»
 
+import { wikiLinksPlugin } from './plugins/wiki-links'
+
 const srcDir = 'notes'
 const notesDir = path.resolve(__dirname, '..', srcDir) //абсолютный путь к папке, нужен для корректного доступа к файлам.
 
@@ -50,22 +52,14 @@ export default defineConfig({
   // Парсинг [[Заметка]] и [[Заметка | в этоих заметках]]
   markdown: {
     config(md) {
-      const pattern = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
-      const defaultText = md.renderer.rules.text ?? ((tokens, idx) => tokens[idx].content)
-
-      md.renderer.rules.text = function (tokens, idx, options, env, self) {
-        const raw = defaultText(tokens, idx, options, env, self)
-
-        return raw.replace(pattern, (_, rawName, displayText) => {
-          const name = rawName.trim()
-          const slug = slugMap[name]
-          const label = (displayText || name).trim()
-
-          if (!slug) return `[[${name}${displayText ? ` | ${label}` : ''}]]`
-
-          return `<a href="/${slug}" class="internal-link">${label}</a>`
-        })
-      }
+      md.use(wikiLinksPlugin, {
+        slugMap, // твой объект { "Заметка": "slug" }
+        onLinkFound: (noteName, slug) => {
+          // Можно собирать обратные ссылки здесь
+          console.log('Найдена ссылка:', noteName, 'slug:', slug)
+        },
+        brokenLinkClass: 'wikilink-broken' // опционально
+      })
     }
   }
 })

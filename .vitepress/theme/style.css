@@ -1,5 +1,16 @@
-
 html {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.wikilink {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.wikilink:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+.wikilink-broken {
+  color: #ef4444;
+  text-decoration: underline wavy;
+}
